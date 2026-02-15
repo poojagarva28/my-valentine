@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>A Secret</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Caveat:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ivory: #fff8ef;
+        --dandelion: #edbd60;
+        --pale-shell: #b6c8df;
+        --navy: #3f49a5;
+        --strawberry: #ab3730;
+        --ink-black: #1a1a1a;
+      }
+
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: "Fredoka", sans-serif;
+      }
+
+      #ui {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: var(--strawberry);
+        text-align: center;
+        z-index: 20;
+        transition: opacity 0.8s ease;
+        pointer-events: none;
+        width: 90%;
+      }
+
+      h1 {
+        font-family: "Fredoka", sans-serif;
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: 1px;
+      }
+
+      /* REFINED CSS HEART LOCK */
+      #lock-wrapper {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        width: 120px;
+        height: 120px;
+        cursor: pointer;
+        z-index: 100;
+        opacity: 0;
+        transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      #lock-wrapper.visible {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+
+      .heart-base {
+        position: relative;
+        width: 100px;
+        height: 90px;
+        margin: 30px auto 0;
+      }
+      .heart-base:before,
+      .heart-base:after {
+        content: "";
+        position: absolute;
+        left: 50px;
+        top: 0;
+        width: 50px;
+        height: 80px;
+        background: var(--strawberry);
+        border-radius: 50px 50px 0 0;
+        transform: rotate(-45deg);
+        transform-origin: 0 100%;
+        box-shadow: inset -5px -5px 15px rgba(0, 0, 0, 0.1);
+      }
+      .heart-base:after {
+        left: 0;
+        transform: rotate(45deg);
+        transform-origin: 100% 100%;
+      }
+
+      .keyhole {
+        position: absolute;
+        top: 45px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 12px;
+        height: 20px;
+        background: var(--ivory);
+        border-radius: 10px 10px 5px 5px;
+        z-index: 10;
+      }
+
+      .shackle {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 70px;
+        height: 60px;
+        border: 10px solid var(--dandelion);
+        border-radius: 35px 35px 0 0;
+        border-bottom: none;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: 15px 50px;
+      }
+
+      /* Animation for unlocking */
+      #lock-wrapper.open .shackle {
+        transform: translateX(-50%) rotate(-80deg) translateY(-25px);
+        border-color: var(--pale-shell);
+      }
+
+      /* Password Screen */
+      #lock-screen {
+        position: fixed;
+        inset: 0;
+        background: #fff;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 200;
+      }
+      #lock-screen h2 {
+        font-family: "Fredoka", sans-serif;
+        color: var(--navy);
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 25px;
+        margin-top: 0;
+      }
+      input {
+        padding: 15px 25px;
+        border: 3px solid var(--strawberry);
+        font-family: "Fredoka", sans-serif;
+        font-size: 1.1rem;
+        font-weight: 600;
+        outline: none;
+        text-align: center;
+        width: 280px;
+        background: white;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+      }
+      input:focus {
+        border-color: var(--strawberry);
+      }
+
+      /* The Letter */
+      #letter-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.8);
+        width: 90%;
+        max-width: 100%;
+        display: none;
+        opacity: 0;
+        transition: 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        z-index: 300;
+        height: 90%;
+      }
+      #letter-container.open {
+        display: block;
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+
+      .clean-card {
+        background: var(--ivory);
+        padding: 40px 30px;
+        border-radius: 24px;
+        max-height: 85vh;
+        overflow-y: auto;
+      }
+
+      .letter-header {
+        font-family: "Fredoka", sans-serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--strawberry);
+        text-align: center;
+        border-bottom: 3px solid var(--dandelion);
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+      }
+      .main-text {
+        font-family: "Caveat", cursive;
+        font-size: 1.6rem;
+        line-height: 1.6;
+        color: var(--ink-black);
+        margin-top: 25px;
+      }
+
+      video {
+        display: none;
+      }
+
+      #debug {
+        position: absolute;
+        bottom: 20px;
+        width: 100%;
+        text-align: center;
+        font-size: 14px;
+        color: var(--navy);
+        font-weight: 700;
+        font-family: "Fredoka", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: opacity 0.5s ease;
+      }
+
+      /* Decorative elements */
+      .decorative-circle {
+        position: fixed;
+        border-radius: 50%;
+        opacity: 0.1;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      /* .circle-1 {
+        width: 300px;
+        height: 300px;
+        background: var(--pale-shell);
+        top: -100px;
+        left: -100px;
+      }
+
+      .circle-2 {
+        width: 200px;
+        height: 200px;
+        background: var(--ink-black);
+        bottom: -50px;
+        right: -50px;
+      }
+
+      .circle-3 {
+        width: 150px;
+        height: 150px;
+        background: var(--navy);
+        top: 50%;
+        right: 10%;
+      } */
+    </style>
+  </head>
+  <body>
+    <!-- Decorative background elements -->
+    <div class="decorative-circle circle-1"></div>
+    <div class="decorative-circle circle-2"></div>
+    <div class="decorative-circle circle-3"></div>
+
+    <div id="ui">
+      <h1>Form a heart 🫶🏻</h1>
+    </div>
+
+    <div id="lock-wrapper" onclick="showPassPrompt()">
+      <div class="shackle"></div>
+      <div class="heart-base"><div class="keyhole"></div></div>
+    </div>
+
+    <div id="lock-screen">
+      <h2>Unlock My Heart</h2>
+      <input
+        type="password"
+        id="passInput"
+        placeholder="PASSWORD"
+        oninput="checkPass(this.value)"
+      />
+    </div>
+
+    <div id="letter-container">
+      <div class="clean-card">
+        <div class="letter-header">From Now to Eternity - And Beyond</div>
+        <div class="main-text">
+          My love,<br />
+          You are more than any label could ever capture. Our bonding doesn't
+          need a tag or a name to define it. What we share goes beyond
+          definitions, beyond roles, beyond time itself. It feels eternal.
+          <br />
+          With you, I don't have to pretend. I don't have to be strong all the
+          time. I don't have to filter my thoughts or hide my fears. I can say
+          anything. I can share everything. And that is the most precious thing
+          in the world to me.
+          <br />
+          From the day we started talking to now, I have always been myself with
+          you. Completely. Fully. Unfiltered. And you've accepted every version
+          of me - the strong one, the soft one, the confused one, the emotional
+          one, the silly one. I never had to become someone else to be loved by
+          you.
+          <br />
+          That safety… that comfort… that freedom to just be me - that's what
+          makes us beyond every label.
+          <br />
+          You are my safe place. My calm. My truth. My home.
+          <br />
+          And whatever this connection is called, I know one thing - it feels
+          like forever.
+          <br />
+          Yours,<br />
+          Pooja
+        </div>
+      </div>
+    </div>
+
+    <div id="debug">Initializing Camera...</div>
+    <video id="input_video"></video>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+    <script>
+      // --- THREE.JS BACKGROUND ---
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+      });
+      renderer.physicallyCorrectLights = true;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+      // Soft base light
+      scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+
+      // Main shiny highlight light
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1.8);
+      dirLight.position.set(5, 5, 5);
+      scene.add(dirLight);
+
+      // Back rim light (adds depth & shine)
+      const backLight = new THREE.DirectionalLight(0xffffff, 1.2);
+      backLight.position.set(-5, -5, -5);
+      scene.add(backLight);
+      camera.position.z = 12;
+
+      const hShape = new THREE.Shape();
+      hShape.moveTo(25, 25);
+      hShape.bezierCurveTo(25, 25, 20, 0, 0, 0);
+      hShape.bezierCurveTo(-30, 0, -30, 35, -30, 35);
+      hShape.bezierCurveTo(-30, 55, -10, 77, 25, 95);
+      hShape.bezierCurveTo(60, 77, 80, 55, 80, 35);
+      hShape.bezierCurveTo(80, 35, 80, 0, 50, 0);
+      hShape.bezierCurveTo(35, 0, 25, 25, 25, 25);
+      const hGeom = new THREE.ExtrudeGeometry(hShape, {
+        depth: 10,
+        bevelEnabled: true,
+        bevelSize: 8,
+        bevelThickness: 8,
+      });
+      hGeom.center();
+      hGeom.rotateX(Math.PI);
+      hGeom.scale(0.015, 0.015, 0.015);
+      const hMat = new THREE.MeshPhysicalMaterial({
+        color: 0xff4d6d, // glossy pink-red
+        metalness: 0.0, // not metallic
+        roughness: 0.05, // very smooth surface
+        clearcoat: 1.0, // shiny top layer
+        clearcoatRoughness: 0.05,
+        reflectivity: 1.0,
+      });
+
+      const mesh = new THREE.InstancedMesh(hGeom, hMat, 200);
+      scene.add(mesh);
+
+      const dummy = new THREE.Object3D();
+      const hearts = Array.from({ length: 200 }, () => ({
+        pos: new THREE.Vector3(0, 0, 0),
+        vel: new THREE.Vector3(0, 0, 0),
+        rot: new THREE.Vector3(Math.random(), Math.random(), Math.random()),
+        scale: 0.0001,
+        active: false,
+      }));
+
+      let magicTriggered = false;
+
+      function triggerMagic() {
+        if (magicTriggered) return;
+        magicTriggered = true;
+
+        // Hide welcome UI and Debug text
+        document.getElementById("ui").style.opacity = "0";
+        document.getElementById("debug").style.opacity = "0";
+
+        // Show Heart Lock
+        document.getElementById("lock-wrapper").classList.add("visible");
+
+        hearts.forEach((h) => {
+          h.active = true;
+          h.scale = 1;
+          h.vel.set(
+            (Math.random() - 0.5) * 0.5,
+            (Math.random() - 0.5) * 0.5,
+            (Math.random() - 0.5) * 0.5
+          );
+        });
+      }
+
+      function showPassPrompt() {
+        document.getElementById("lock-screen").style.display = "flex";
+        document.getElementById("passInput").focus();
+      }
+
+      function checkPass(val) {
+        if (val.toLowerCase() === "chocoandkitty") {
+          document.getElementById("lock-screen").style.display = "none";
+
+          // Animate the lock opening
+          const lock = document.getElementById("lock-wrapper");
+          lock.classList.add("open");
+
+          setTimeout(() => {
+            lock.style.opacity = "0";
+            const letter = document.getElementById("letter-container");
+            letter.style.display = "block";
+            setTimeout(() => letter.classList.add("open"), 100);
+          }, 1500);
+        }
+      }
+
+      // --- GESTURE DETECTION ---
+      const hands = new Hands({
+        locateFile: (file) =>
+          `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+      });
+      hands.setOptions({
+        maxNumHands: 2,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.6,
+        minTrackingConfidence: 0.6,
+      });
+
+      hands.onResults((res) => {
+        if (magicTriggered) return;
+
+        const debug = document.getElementById("debug");
+        if (res.multiHandLandmarks && res.multiHandLandmarks.length === 2) {
+          const h1 = res.multiHandLandmarks[0];
+          const h2 = res.multiHandLandmarks[1];
+
+          const topDist = Math.hypot(h1[8].x - h2[8].x, h1[8].y - h2[8].y);
+          const bottomDist = Math.hypot(h1[4].x - h2[4].x, h1[4].y - h2[4].y);
+
+          if (topDist < 0.18 && bottomDist < 0.18) {
+            triggerMagic();
+          } else {
+            debug.innerText = "Bring your hands closer... 🫶🏻";
+          }
+        } else {
+          debug.innerText = "Show both hands to form the heart 🫶🏻";
+        }
+      });
+
+      const cam = new Camera(document.getElementById("input_video"), {
+        onFrame: async () => {
+          await hands.send({ image: document.getElementById("input_video") });
+        },
+        width: 640,
+        height: 480,
+      });
+      cam.start();
+
+      function animate() {
+        requestAnimationFrame(animate);
+        hearts.forEach((h, i) => {
+          if (h.active) {
+            h.pos.add(h.vel);
+            h.rot.x += 0.01;
+            h.rot.y += 0.01;
+          }
+          dummy.position.copy(h.pos);
+          dummy.rotation.set(h.rot.x, h.rot.y, h.rot.z);
+          dummy.scale.set(h.scale, h.scale, h.scale);
+          dummy.updateMatrix();
+          mesh.setMatrixAt(i, dummy.matrix);
+        });
+        mesh.instanceMatrix.needsUpdate = true;
+        renderer.render(scene, camera);
+      }
+      animate();
+    </script>
+  </body>
+</html>
