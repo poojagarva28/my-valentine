@@ -256,6 +256,40 @@
         top: 50%;
         right: 10%;
       } */
+
+      .lock-text {
+        position: absolute;
+        width: 100%;
+        bottom: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        font-family: "Fredoka", sans-serif;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--ink-black);
+        pointer-events: none;
+      }
+
+      /* Flirty unlocking text */
+      .unlocking-text {
+        position: fixed;
+        top: 60%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: "Caveat", cursive;
+        font-size: 2rem;
+        color: var(--strawberry);
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        z-index: 250;
+        display: none;
+      }
+      .unlocking-text.show {
+        opacity: 1;
+        display: block;
+      }
     </style>
   </head>
   <body>
@@ -265,12 +299,15 @@
     <div class="decorative-circle circle-3"></div>
 
     <div id="ui">
-      <h1>Form a heart 🫶🏻</h1>
+      <h1>Form a heart Alok 🫶🏻</h1>
     </div>
 
     <div id="lock-wrapper" onclick="showPassPrompt()">
       <div class="shackle"></div>
-      <div class="heart-base"><div class="keyhole"></div></div>
+      <div class="heart-base">
+        <div class="keyhole"></div>
+      </div>
+      <div class="lock-text">Click to Unlock 🗝️</div>
     </div>
 
     <div id="lock-screen">
@@ -319,6 +356,10 @@
 
     <div id="debug">Initializing Camera...</div>
     <video id="input_video"></video>
+
+    <div id="unlockingMessage" class="unlocking-text">
+      Careful… once opened, you’re mine forever 😉💋
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.152.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
@@ -419,6 +460,10 @@
 
       function showPassPrompt() {
         document.getElementById("lock-screen").style.display = "flex";
+
+        // Hide lock text while password screen is visible
+        document.querySelector(".lock-text").style.display = "none";
+
         document.getElementById("passInput").focus();
       }
 
@@ -426,16 +471,23 @@
         if (val.toLowerCase() === "chocoandkitty") {
           document.getElementById("lock-screen").style.display = "none";
 
-          // Animate the lock opening
           const lock = document.getElementById("lock-wrapper");
+          const message = document.getElementById("unlockingMessage");
+
+          // Show flirty text
+          message.classList.add("show");
+
+          // Animate lock opening
           lock.classList.add("open");
 
           setTimeout(() => {
             lock.style.opacity = "0";
+            message.classList.remove("show");
+
             const letter = document.getElementById("letter-container");
             letter.style.display = "block";
             setTimeout(() => letter.classList.add("open"), 100);
-          }, 1500);
+          }, 3000);
         }
       }
 
